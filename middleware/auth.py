@@ -36,6 +36,7 @@ def token_required(f):
             return jsonify({"error": "Token error", "details": str(e)}), 500
 
         # pass student to route
-        return f(current_user=current_user, *args, **kwargs)
+        return f(current_student=current_user, *args, **kwargs)
+
 
     return decorated

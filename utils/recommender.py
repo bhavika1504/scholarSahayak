@@ -1,6 +1,7 @@
 # utils/recommender.py
 from models.scholarship_model import ScholarshipModel
 import math
+from datetime import date
 
 def score_and_explain(student, scholarship_row):
     """
@@ -93,20 +94,34 @@ def score_and_explain(student, scholarship_row):
 
 
 def recommend_for_student(student_id, limit=10):
-    student = None
-    # lazy import to avoid circulars
     from models.student_model import StudentModel
+
     student = StudentModel.get_student_by_id(student_id)
     if not student:
         return []
 
     rows = ScholarshipModel.get_all_with_eligibility()
     scored = []
+
+    today = date.today()
+
     for r in rows:
+        # ---------------- DEADLINE CHECK ----------------
+        deadline = r.get("deadline")
+        if deadline:
+            try:
+                if deadline < today:
+                    continue  # ❌ skip expired scholarship
+            except Exception:
+                pass
+        # ------------------------------------------------
+
         score, explanation = score_and_explain(student, r)
+
         # skip disqualified
         if score == -9999:
             continue
+
         scored.append({
             "scholarship_id": r["scholarship_id"],
             "title": r["title"],
@@ -114,12 +129,25 @@ def recommend_for_student(student_id, limit=10):
             "amount": r["amount"],
             "provider_type": r.get("provider_type"),
             "state_id": r.get("state_id"),
+            "deadline": r.get("deadline"),
             "score": score,
             "explanation": explanation,
             "official_link": r.get("official_link"),
             "created_at": r.get("created_at")
         })
 
-    # sort by score desc then created_at
+    # sort by score desc, then newest first
     scored.sort(key=lambda x: (x["score"], x.get("created_at")), reverse=True)
+
     return scored[:limit]
+
+
+def ai_enrich_explanation(student, scholarship):
+    # Example placeholder
+    # When you add OpenAI or other API, replace this function to call API.
+    prompt = f"""Student: {student['name']}, age..., course: {student['course']}, income: {student['annual_income']}, category: {student['category']}...
+Scholarship: {scholarship['title']} — {scholarship['description']}. Eligibility: ...
+Write a one-sentence explanation why this scholarship is a good match and list missing docs."""
+    # call OpenAI here and return text
+    return "AI-generated explanation (placeholder)"
+

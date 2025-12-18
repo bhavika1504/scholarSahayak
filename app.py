@@ -3,12 +3,14 @@ from flask import Flask
 from routes.auth_routes import auth
 from routes.student_routes import student_bp   # add this import
 from flask_cors import CORS
+from routes.scholarship_routes import scholarship_bp
 
 app = Flask(__name__)
 CORS(app)
 
 app.register_blueprint(auth, url_prefix="/auth")
-app.register_blueprint(student_bp, url_prefix="/student")  # new
+app.register_blueprint(student_bp, url_prefix="/student")
+app.register_blueprint(scholarship_bp, url_prefix="/scholarships")
 
 @app.route("/")
 def home():
