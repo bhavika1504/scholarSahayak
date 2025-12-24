@@ -2,6 +2,10 @@ from flask import Blueprint, jsonify, request
 from middleware.auth import token_required
 from models.student_model import StudentModel
 from utils.recommender import recommend_for_student
+from models.student_scholarship_model import StudentScholarshipModel
+from utils.ai_discovery import ai_scholarship_suggestions
+
+
 
 student_bp = Blueprint("student", __name__)
 
@@ -65,4 +69,48 @@ def get_recommendations(current_student):
         "status": True,
         "count": len(recommendations),
         "recommendations": recommendations
+    }), 200
+
+
+# -------- SAVE SCHOLARSHIP --------
+@student_bp.route("/scholarships/<int:scholarship_id>/save", methods=["POST"])
+@token_required
+def save_scholarship(current_student, scholarship_id):
+
+    result = StudentScholarshipModel.save_scholarship(
+        current_student["student_id"],
+        scholarship_id
+    )
+
+    if not result["status"]:
+        return jsonify(result), 400
+
+    return jsonify(result), 200
+
+
+# -------- APPLY SCHOLARSHIP --------
+@student_bp.route("/scholarships/<int:scholarship_id>/apply", methods=["POST"])
+@token_required
+def apply_scholarship(current_student, scholarship_id):
+
+    result = StudentScholarshipModel.apply_scholarship(
+        current_student["student_id"],
+        scholarship_id
+    )
+
+    if not result["status"]:
+        return jsonify(result), 400
+
+    return jsonify(result), 200
+
+#--------------AI RECOMMENDATION---------------
+@student_bp.route("/ai-suggestions", methods=["GET"])
+@token_required
+def ai_suggestions(current_student):
+
+    suggestions = ai_scholarship_suggestions(current_student)
+
+    return jsonify({
+        "status": True,
+        "ai_assistant": suggestions
     }), 200
