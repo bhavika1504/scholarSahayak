@@ -1,14 +1,26 @@
 from flask import request, jsonify
 from functools import wraps
-from config import ADMIN_TOKEN
+import jwt
+from config import SECRET_KEY
 
 def admin_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        token = request.headers.get("X-ADMIN-TOKEN")
+        auth_header = request.headers.get("Authorization")
 
-        if not token or token != ADMIN_TOKEN:
-            return jsonify({"error": "Admin access denied"}), 403
+        if not auth_header:
+            return jsonify({"error": "Admin access denied"}), 401
 
-        return f(*args, **kwargs)
+        try:
+            token = auth_header.split(" ")[1]
+            payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+
+            if payload.get("role") != "admin":
+                return jsonify({"error": "Admin access denied"}), 403
+
+            return f(payload, *args, **kwargs)
+
+        except Exception as e:
+            return jsonify({"error": "Invalid or expired token"}), 401
+
     return decorated

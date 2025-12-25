@@ -9,8 +9,6 @@ from routes.admin_analytics_routes import admin_analytics_bp
 from routes.admin_auth_routes import admin_auth_bp
 
 
-
-
 app = Flask(__name__)
 CORS(app)
 
