@@ -5,6 +5,10 @@ from routes.student_routes import student_bp   # add this import
 from flask_cors import CORS
 from routes.scholarship_routes import scholarship_bp
 from routes.admin_routes import admin_bp
+from routes.admin_analytics_routes import admin_analytics_bp
+from routes.admin_auth_routes import admin_auth_bp
+
+
 
 
 app = Flask(__name__)
@@ -14,7 +18,8 @@ app.register_blueprint(auth, url_prefix="/auth")
 app.register_blueprint(student_bp, url_prefix="/student")
 app.register_blueprint(scholarship_bp, url_prefix="/scholarships")
 app.register_blueprint(admin_bp, url_prefix="/admin")
-
+app.register_blueprint(admin_analytics_bp, url_prefix="/admin")
+app.register_blueprint(admin_auth_bp, url_prefix="/admin")
 
 @app.route("/")
 def home():

@@ -2,6 +2,7 @@
 from models.scholarship_model import ScholarshipModel
 import math
 from datetime import date
+from utils.ai_explainer import generate_ai_explanation
 
 def score_and_explain(student, scholarship_row):
     score = 0
@@ -92,6 +93,8 @@ def recommend_for_student(student_id, limit=10):
         if score == -9999:
             continue
 
+        ai_info = generate_ai_explanation(student, r)
+
         scored.append({
             "scholarship_id": r["scholarship_id"],
             "title": r["title"],
@@ -102,6 +105,8 @@ def recommend_for_student(student_id, limit=10):
             "deadline": r.get("deadline"),
             "score": score,
             "explanation": explanation,
+            "ai_explanation": ai_info["ai_explanation"],
+            "required_documents": ai_info["required_documents"],
             "official_link": r.get("official_link"),
             "created_at": r.get("created_at")
         })
