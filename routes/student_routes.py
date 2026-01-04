@@ -73,7 +73,7 @@ def get_recommendations(current_student):
 
 
 # -------- SAVE SCHOLARSHIP --------
-@student_bp.route("/scholarships/<int:scholarship_id>/save", methods=["POST"])
+@student_bp.route("/scholarships/<int:scholarship_id>/save-scholarship", methods=["POST"])
 @token_required
 def save_scholarship(current_student, scholarship_id):
 
@@ -86,10 +86,18 @@ def save_scholarship(current_student, scholarship_id):
         return jsonify(result), 400
 
     return jsonify(result), 200
+@student_bp.route("/saved", methods=["GET"])
+@token_required
+def get_saved(current_student):
+    data = StudentScholarshipModel.get_saved(
+        current_student["student_id"]
+    )
+    return jsonify(data), 200
+
 
 
 # -------- APPLY SCHOLARSHIP --------
-@student_bp.route("/scholarships/<int:scholarship_id>/apply", methods=["POST"])
+@student_bp.route("/scholarships/<int:scholarship_id>/apply-scholarship", methods=["POST"])
 @token_required
 def apply_scholarship(current_student, scholarship_id):
 

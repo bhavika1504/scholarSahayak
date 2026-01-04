@@ -7,10 +7,12 @@ from routes.scholarship_routes import scholarship_bp
 from routes.admin_routes import admin_bp
 from routes.admin_analytics_routes import admin_analytics_bp
 from routes.admin_auth_routes import admin_auth_bp
-
+from routes.admin_pipeline_routes import admin_pipeline_bp
 
 app = Flask(__name__)
 CORS(app)
+
+app.register_blueprint(admin_pipeline_bp, url_prefix="/admin")
 
 app.register_blueprint(auth, url_prefix="/auth")
 app.register_blueprint(student_bp, url_prefix="/student")

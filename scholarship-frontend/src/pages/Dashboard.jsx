@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import ScholarshipCard from "../components/ScholarshipCard";
 
 export default function Dashboard() {
   const [scholarships, setScholarships] = useState([]);
@@ -15,67 +16,62 @@ export default function Dashboard() {
       .then(data => setScholarships(data.recommendations || []));
   }, []);
 
+  // 🔥 SAVE HANDLER (THIS WAS MISSING)
+  const handleSave = async (scholarshipId) => {
+  const token = localStorage.getItem("token");
+
+  const res = await fetch(
+    `http://localhost:5000/student/scholarships/${scholarshipId}/save-scholarship`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  const data = await res.json();
+
+  if (data.status) {
+    alert("✅ Scholarship saved!");
+  } else {
+    alert(data.message || "Already saved");
+  }
+};
+
+
   return (
-    <div className="min-h-screen bg-[#F6F7FB] p-8">
+    <div className="flex min-h-screen w-full bg-[#EAF2DD]">
       
-      {/* Header */}
-      <div className="flex justify-between items-center mb-10">
-        <h1 className="text-3xl font-bold text-[#0F172A]">
-          🎓 Your Scholarships
-        </h1>
 
-        <button
-          onClick={() => {
-            localStorage.removeItem("token");
-            window.location.href = "/";
-          }}
-          className="text-sm text-red-500 hover:underline"
-        >
-          Logout
-        </button>
-      </div>
+      <main className="flex-1 p-10 overflow-y-auto">
+        <div className="flex justify-between items-center mb-10">
+          <h1 className="text-4xl font-bold text-[#1F2937]">
+            🎓 Smart Matches
+          </h1>
 
-      {/* Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {scholarships.map((sch) => (
-          <div
-            key={sch.scholarship_id}
-            className="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition"
+          <button
+            onClick={() => {
+              localStorage.removeItem("token");
+              window.location.href = "/";
+            }}
+            className="text-red-500"
           >
-            <h2 className="text-lg font-semibold text-[#5B5FEF] mb-2">
-              {sch.title}
-            </h2>
+            Logout
+          </button>
+        </div>
 
-            <p className="text-sm text-gray-600 mb-3">
-              {sch.description}
-            </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+          {scholarships.map((sch) => (
+  <ScholarshipCard
+    key={sch.scholarship_id}
+    sch={sch}
+    onSave={handleSave}
+  />
+))}
 
-            <div className="text-sm mb-2">
-              💰 <span className="font-medium">₹{sch.amount}</span>
-            </div>
-
-            <div className="text-xs text-gray-500 mb-3">
-              🕒 Deadline: {sch.deadline}
-            </div>
-
-            <div className="text-xs bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full inline-block mb-3">
-              Score: {sch.score}
-            </div>
-
-            <p className="text-xs text-gray-500 mb-4">
-              {sch.ai_explanation}
-            </p>
-
-            <a
-              href={sch.official_link}
-              target="_blank"
-              className="block text-center bg-[#5B5FEF] text-white py-2 rounded-lg hover:bg-[#4B4FE0] transition"
-            >
-              Apply Now
-            </a>
-          </div>
-        ))}
-      </div>
+        </div>
+      </main>
     </div>
   );
 }
